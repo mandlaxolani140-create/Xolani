@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cemza Assistant</title>
+  <style>
+    body {
+      background: radial-gradient(circle at center, #0a0f1f, #000);
+      color: #00e6ff;
+      font-family: "Orbitron", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+      overflow: hidden;
+    }
+    h1 {
+      text-shadow: 0 0 20px #00e6ff;
+      animation: glow 2s infinite alternate;
+    }
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #00e6ff; }
+      to { text-shadow: 0 0 25px #00e6ff, 0 0 40px #00ccff; }
+    }
+    input {
+      margin-top: 20px;
+      padding: 10px;
+      width: 80%;
+      border: none;
+      border-radius: 10px;
+      outline: none;
+      background: rgba(255,255,255,0.1);
+      color: #00e6ff;
+      text-align: center;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 25px;
+      border: none;
+      border-radius: 20px;
+      background: #00e6ff;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #00bfff;
+    }
+    #status {
+      margin-top: 15px;
+      color: #0ff;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🤖 Cemza Assistant</h1>
+  <p>Ask me anything or say a command...</p>
+  <input id="userInput" type="text" placeholder="e.g. open Facebook Lite" />
+  <button onclick="handleInput()">Send</button>
+  <div id="status"></div>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const input = document.getElementById('userInput');
+
+    function speak(text) {
+      const synth = window.speechSynthesis;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.pitch = 1;
+      utter.rate = 1;
+      utter.volume = 1;
+      utter.voice = synth.getVoices().find(v => v.name.includes('Male')) || synth.getVoices()[0];
+      synth.speak(utter);
+    }
+
+    function handleInput() {
+      const text = input.value.toLowerCase().trim();
+      input.value = "";
+      if (!text) return;
+
+      if (text.includes("hello")) respond("Hey there! How can I help you?");
+      else if (text.includes("how are you")) respond("I'm feeling fully charged and ready to assist, thanks for asking!");
+      else if (text.includes("bye") || text.includes("goodbye")) respond("Goodbye! Talk soon!");
+      else if (text.includes("open")) openApp(text);
+      else respond("I didn’t quite get that, but I’m learning fast!");
+    }
+
+    function respond(msg) {
+      statusEl.textContent = msg;
+      speak(msg);
+    }
+
+    function openApp(text) {
+      const apps = [
+        { name: "facebook", package: "com.facebook.katana" },
+        { name: "facebook lite", package: "com.facebook.lite" },
+        { name: "instagram", package: "com.instagram.android" },
+        { name: "instagram lite", package: "com.instagram.lite" },
+        { name: "whatsapp", package: "com.whatsapp" },
+        { name: "tiktok", package: "com.zhiliaoapp.musically" },
+        { name: "chrome", package: "com.android.chrome" }
+      ];
+
+      const app = apps.find(a => text.includes(a.name));
+      if (app) {
+        try {
+          window.location.href = `intent://#Intent;package=${app.package};end`;
+          respond(`Opening ${app.name}...`);
+        } catch (e) {
+          respond(`Couldn’t open ${app.name}. Opening Chrome instead.`);
+          window.open(`https://www.google.com/search?q=${encodeURIComponent(text)}`, "_blank");
+        }
+      } else {
+        respond(`Let me search for "${text}"`);
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(text)}`, "_blank");
+      }
+    }
+
+    // 🧠 Offline-ready service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('Cemza Assistant is now offline-ready ✅'))
+        .catch(err => console.error('Service Worker failed:', err));
+    }
+
+    respond("Cemza Assistant is online and ready.");
+  </script>
+</body>
+</html>

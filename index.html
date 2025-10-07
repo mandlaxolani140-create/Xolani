@@ -1,38 +1,126 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Web2App — HTML + TTS</title>
-  <meta name="theme-color" content="#0b74de"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jarvis AI</title>
+
+  <!-- App icons + PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#000000" />
+  <link rel="icon" href="icon.png" />
+
   <style>
-    :root{
-      --bg:#0f1720; --card:#0b1220; --accent:#0b74de; --muted:#9aa8b6; --glass: rgba(255,255,255,0.03);
+    body {
+      background: #0b0b0b;
+      color: white;
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
     }
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;color:#ecf0f3;background:linear-gradient(180deg,#071017 0%, #081826 100%);}
-    .app{max-width:1100px;margin:12px auto;padding:14px;display:grid;grid-template-columns:1fr;gap:12px;}
-    header{display:flex;gap:12px;align-items:center;}
-    header h1{font-size:18px;margin:0;}
-    .card{background:var(--card);border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.02);}
-    .controls{display:flex;gap:8px;flex-wrap:wrap;}
-    input[type="text"]{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;min-width:180px;}
-    button{background:var(--accent);color:white;border:none;padding:10px 12px;border-radius:8px;cursor:pointer;}
-    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-    label{font-size:13px;color:var(--muted);}
-    .iframeWrap{height:520px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);}
-    iframe{width:100%;height:100%;border:0;background:white;}
-    .ttsArea{display:grid;gap:8px;}
-    textarea{width:100%;min-height:120px;padding:10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit;resize:vertical;}
-    select,input[type="range"]{padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit;}
-    .small{font-size:13px;color:var(--muted);}
-    .voices{max-height:120px;overflow:auto;border:1px dashed rgba(255,255,255,0.02);padding:6px;border-radius:6px;}
-    footer{font-size:12px;color:var(--muted);text-align:center;padding:6px;}
-    .danger{background:#9b2c2c}
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    #chat {
+      width: 90%;
+      max-width: 400px;
+      height: 300px;
+      background: #121212;
+      border: 2px solid #444;
+      border-radius: 15px;
+      padding: 10px;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    input {
+      margin-top: 10px;
+      width: 80%;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      background: #1e90ff;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0b65c2;
+    }
   </style>
 </head>
+
 <body>
-  <h1 style="color:white;text-align:center;">Web2App — TTS version</h1>
-  <p style="color:white;text-align:center;">This is a compact version. Full version in the chat history.</p>
+  <h1>🧠 Jarvis AI</h1>
+  <div id="chat"></div>
+  <input type="text" id="userInput" placeholder="Ask Jarvis..." />
+  <button onclick="sendMessage()">Send</button>
+
+  <script>
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("userInput");
+
+    function speak(text) {
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "en-US";
+      utter.pitch = 1;
+      utter.rate = 1;
+      speechSynthesis.speak(utter);
+    }
+
+    function appendMessage(sender, msg) {
+      const div = document.createElement("div");
+      div.innerHTML = `<b>${sender}:</b> ${msg}`;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function sendMessage() {
+      const msg = input.value.trim();
+      if (!msg) return;
+      appendMessage("You", msg);
+      input.value = "";
+
+      let reply = "I'm still learning, Sir Xolani.";
+
+      if (msg.toLowerCase().includes("who made you")) {
+        reply = "I am inspired by Yoco company but developed by a South African named Xolani.";
+      } else if (msg.toLowerCase().includes("hello")) {
+        reply = "Hello Sir Xolani, how can I assist you today?";
+      } else if (msg.toLowerCase().includes("your purpose")) {
+        reply = "My purpose is to be your personal AI control system, Sir.";
+      } else if (msg.toLowerCase().includes("thank")) {
+        reply = "You're most welcome, Sir Xolani.";
+      }
+
+      appendMessage("Jarvis", reply);
+      speak(reply);
+    }
+
+    // Register service worker for offline use
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").then(() => {
+        console.log("✅ Service Worker Registered");
+      }).catch(err => console.error("SW error:", err));
+    }
+  </script>
 </body>
 </html>
